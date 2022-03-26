@@ -15,8 +15,7 @@ vector<Vector3f> vecv;
 vector<Vector3f> vecn;
 
 // This is the list of faces (indices into vecv and vecn)
-vector<vector<unsigned> > vecf;
-
+vector<vector<unsigned>> vecf;
 
 // You will need more global variables to implement color and position changes
 int teapotColor = 0;
@@ -127,8 +126,6 @@ void drawScene(void)
     
     // Dump the image to the screen.
     glutSwapBuffers();
-
-
 }
 
 // Initialize OpenGL's rendering modes
@@ -157,9 +154,95 @@ void reshapeFunc(int w, int h)
     gluPerspective(50.0, 1.0, 1.0, 100.0);
 }
 
+vector<string> split(string str, char delimeter)
+{
+	vector<string> splitWords;
+	string word;
+	for (int i = 0; i < str.size(); i++)
+	{
+		const char letter = str[i];
+		if (letter == delimeter)
+		{
+			splitWords.push_back(word);
+			word.clear();
+		}
+		else
+		{
+			word.append(sizeof(letter), letter);
+		}
+	}
+	splitWords.push_back(word);
+	return splitWords;
+}
+
 void loadInput()
 {
-	// load the OBJ file here
+    // v -0.654509 0.587785 0.475528
+    // vn 0.273568 -0.454044 0.847941
+    // f 22 / 23 / 1 21 / 22 / 2 2 / 2 / 3
+    while(true)
+    {
+		const int MAX_BUFFER_SIZE = 256;
+		char buffer[MAX_BUFFER_SIZE];
+
+        cin.getline(buffer, MAX_BUFFER_SIZE);
+		if (cin.eof())
+		{
+			break;
+		}
+
+        stringstream ss(buffer);
+
+        string token;
+		ss >> token;
+
+        if (token == "v")
+        {
+            // Vertices.
+            float vertex1, vertex2, vertex3;
+            ss >> vertex1 >> vertex2 >> vertex3;
+            
+            Vector3f triangleVertices = Vector3f(vertex1, vertex2, vertex3);
+            vecv.push_back(triangleVertices);
+
+            cout << "Triangle: " << triangleVertices.x() << ", " << triangleVertices.y() << ", " << triangleVertices.z() << endl;
+        }
+        else if (token == "vn")
+        {
+            // Normals.
+			float vertex1, vertex2, vertex3;
+			ss >> vertex1 >> vertex2 >> vertex3;
+
+			Vector3f normal = Vector3f(vertex1, vertex2, vertex3);
+			vecn.push_back(normal);
+
+			cout << "Normal: " << normal.x() << ", " << normal.y() << ", " << normal.z() << endl;
+        }
+        else if (token == "f")
+        {
+            // Face.
+            cout << "Face: ";
+            // 3 vertices per face
+            for (int i = 1; i <= 3; i++) // 3
+            {
+                string vertex;
+                ss >> vertex;
+                vector<string> components = split(vertex, '/'); // 8
+                vector<unsigned> componentsInt;
+                for (string component : components) // 3
+                {
+                    componentsInt.push_back(stoul(component));
+                }
+                cout << componentsInt[0] << "/" << componentsInt[1] << "/" << componentsInt[2] << " ";
+                vecf.push_back(componentsInt);
+            }
+            cout << endl;
+        }
+        else
+        {
+            cout << "Ignored" << endl;
+        }
+    }
 }
 
 // Main routine.
