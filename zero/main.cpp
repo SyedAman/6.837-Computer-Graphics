@@ -73,6 +73,50 @@ void specialFunc( int key, int x, int y )
     glutPostRedisplay();
 }
 
+void drawLoadedObject()
+{
+    vector<unsigned> faceVertex1 = vecf[0];
+    vector<unsigned> faceVertex2 = vecf[1];
+    vector<unsigned> faceVertex3 = vecf[2];
+
+    // Each face is defined using nine numbers in the following format: a/b/c d/e/f g/h/i.
+
+    unsigned a = faceVertex1[0];
+    unsigned b = faceVertex1[1];
+    unsigned c = faceVertex1[2];
+
+    unsigned d = faceVertex2[0];
+    unsigned e = faceVertex2[1];
+    unsigned f = faceVertex2[2];
+
+    unsigned g = faceVertex3[0];
+    unsigned h = faceVertex3[1];
+    unsigned i = faceVertex3[2];
+
+    // a, d, g represents components of each of the 3 vertexes of a face
+    // c, f, i represents normals of each of the 3 vertexes of a face
+
+    glBegin(GL_TRIANGLES);
+
+    // First triangle point. a and c
+    glNormal3d(vecn[c-1][0], vecn[c-1][1], vecn[c-1][2]);
+    glVertex3d(vecv[a-1][0], vecv[a-1][1], vecv[a-1][2]);
+    cout << vecv[a - 1][0] << "," << vecv[a - 1][1] << "," << vecv[a - 1][2] << endl;
+
+
+    // Second triangle point. d and f
+    glNormal3d(vecn[f - 1][0], vecn[f - 1][1], vecn[f - 1][2]);
+    glVertex3d(vecv[d - 1][0], vecv[d - 1][1], vecv[d - 1][2]);
+	cout << vecv[d - 1][0] << "," << vecv[d - 1][1] << "," << vecv[d - 1][2] << endl;
+
+    // Third triangle point. g and i
+    glNormal3d(vecn[i - 1][0], vecn[i - 1][1], vecn[i - 1][2]);
+    glVertex3d(vecv[g - 1][0], vecv[g - 1][1], vecv[g - 1][2]);
+	cout << vecv[g - 1][0] << "," << vecv[g - 1][1] << "," << vecv[g - 1][2] << endl;
+
+    glEnd();
+}
+
 // This function is responsible for displaying the object.
 void drawScene(void)
 {
@@ -120,10 +164,8 @@ void drawScene(void)
     glLightfv(GL_LIGHT0, GL_DIFFUSE, Lt0diff);
     glLightfv(GL_LIGHT0, GL_POSITION, Lt0pos);
 
-	// This GLUT method draws a teapot.  You should replace
-	// it with code which draws the object you loaded.
-	glutSolidTeapot(1.0);
-    
+    drawLoadedObject();
+
     // Dump the image to the screen.
     glutSwapBuffers();
 }
@@ -204,8 +246,6 @@ void loadInput()
             
             Vector3f triangleVertices = Vector3f(vertex1, vertex2, vertex3);
             vecv.push_back(triangleVertices);
-
-            cout << "Triangle: " << triangleVertices.x() << ", " << triangleVertices.y() << ", " << triangleVertices.z() << endl;
         }
         else if (token == "vn")
         {
@@ -215,32 +255,26 @@ void loadInput()
 
 			Vector3f normal = Vector3f(vertex1, vertex2, vertex3);
 			vecn.push_back(normal);
-
-			cout << "Normal: " << normal.x() << ", " << normal.y() << ", " << normal.z() << endl;
         }
         else if (token == "f")
         {
             // Face.
-            cout << "Face: ";
             // 3 vertices per face
-            for (int i = 1; i <= 3; i++) // 3
+            for (int i = 1; i <= 3; i++)
             {
                 string vertex;
                 ss >> vertex;
-                vector<string> components = split(vertex, '/'); // 8
+                vector<string> components = split(vertex, '/');
                 vector<unsigned> componentsInt;
-                for (string component : components) // 3
+                for (string component : components)
                 {
                     componentsInt.push_back(stoul(component));
                 }
-                cout << componentsInt[0] << "/" << componentsInt[1] << "/" << componentsInt[2] << " ";
                 vecf.push_back(componentsInt);
             }
-            cout << endl;
         }
         else
         {
-            cout << "Ignored" << endl;
         }
     }
 }
